@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         sharedPreference?.registerOnSharedPreferenceChangeListener(sharedListener)
 
         // TODO: 05.10.2021 Internal Storage
-
+        // TODO: 05.10.2021 context.deleteFile(cacheFileName) и
+        //  context.openFileOutput(filename, Context.MODE_PRIVATE) для cache файлов не работает? почему?
         val file = File("temp.txt")
         val content = "content"
         openFileOutput(file.name, Context.MODE_PRIVATE).use { output ->
@@ -65,22 +66,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         File.createTempFile("cash_temp", null, cacheDir)
         val listFiles = cacheDir.listFiles()
         listFiles?.forEach { file ->
-            Log.d("TAG", "cash_write: ${file.name} ")
-            openFileOutput(file.name, Context.MODE_PRIVATE).use { output ->
-                output.write(content.toByteArray())
-            }
+            Log.d("TAG", "cash_add: ${file.name} ")
+            file.writeBytes(content.toByteArray())
         }
-
-        listFiles?.forEach { file ->
-            Log.d("TAG", "cash_delete: ${file.name} ")
-            file.delete()
-            // TODO: 05.10.2021 context.deleteFile(cacheFileName) не работает? почему?
-        }
-
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
+        val listFiles = cacheDir.listFiles()
+        listFiles?.forEach { file ->
+            Log.d("TAG", "cash_delete: ${file.name} ")
+            file.delete()
+        }
+
+
         sharedPreference?.unregisterOnSharedPreferenceChangeListener(sharedListener)
         sharedPreference = null
         _binding = null
