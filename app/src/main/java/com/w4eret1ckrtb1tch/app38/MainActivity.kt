@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.w4eret1ckrtb1tch.app38.databinding.ActivityMainBinding
+import java.io.File
 
 const val SETTINGS = "settings"
 
@@ -21,6 +22,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // TODO: 05.10.2021 SharedPreferences 
         sharedPreference = getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
         sharedPreference?.edit {
             putString("str_key", "string")
@@ -46,6 +49,33 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         sharedPreference?.registerOnSharedPreferenceChangeListener(sharedListener)
+
+        // TODO: 05.10.2021 Internal Storage
+
+        val file = File("temp.txt")
+        val content = "content"
+        openFileOutput(file.name, Context.MODE_PRIVATE).use { output ->
+            output.write(content.toByteArray())
+        }
+
+        openFileInput(file.name).bufferedReader().useLines { lines ->
+            lines.forEach { Log.d("TAG", "lines: $it ") }
+        }
+
+        File.createTempFile("cash_temp", null, cacheDir)
+        val listFiles = cacheDir.listFiles()
+        listFiles?.forEach { file ->
+            Log.d("TAG", "cash_write: ${file.name} ")
+            openFileOutput(file.name, Context.MODE_PRIVATE).use { output ->
+                output.write(content.toByteArray())
+            }
+        }
+
+        listFiles?.forEach { file ->
+            Log.d("TAG", "cash_delete: ${file.name} ")
+            file.delete()
+            // TODO: 05.10.2021 context.deleteFile(cacheFileName) не работает? почему?
+        }
 
     }
 
