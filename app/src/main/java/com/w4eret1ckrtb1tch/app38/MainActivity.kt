@@ -1,13 +1,18 @@
 package com.w4eret1ckrtb1tch.app38
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.os.storage.StorageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import com.w4eret1ckrtb1tch.app38.databinding.ActivityMainBinding
@@ -125,6 +130,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
+        // TODO: 06.10.2021 38.5. Permissions
+        binding.permission.setOnClickListener {
+            getPermission()
+        }
     }
 
 
@@ -138,11 +147,56 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         _binding = null
     }
 
+    // TODO: Deprecate
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE_WRITE_EXTERNAL -> {
+                grantResults.forEach {
+                    if (grantResults.isNotEmpty() && it == PackageManager.PERMISSION_GRANTED) {
+                        getPermission()
+                    }
+                }
+            }
+        }
+
+    }
+
     private fun clearCache(files: File?) {
         val listFiles = files?.listFiles()
         listFiles?.forEach { file ->
             Log.d("TAG", "cash_delete: ${file.name} ")
             file.delete()
         }
+    }
+
+    val REQUEST_CODE_WRITE_EXTERNAL = 1
+
+    private fun getPermission() {
+        if (checkPermission()) {
+            // TODO: make work
+            Toast.makeText(this, "check", Toast.LENGTH_SHORT).show()
+        } else {
+            requestPermission()
+        }
+    }
+
+    private fun checkPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            REQUEST_CODE_WRITE_EXTERNAL
+        )
     }
 }
