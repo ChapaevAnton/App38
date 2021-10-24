@@ -32,7 +32,7 @@ class DataBase private constructor(context: Context) {
             whereArgs,
             null,
             null,
-            null
+            "${Table.Column.PRICE} DESC"
         )
         return ItemCursorWrapper(cursor)
     }
