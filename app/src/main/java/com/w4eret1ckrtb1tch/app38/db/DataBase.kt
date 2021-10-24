@@ -24,9 +24,61 @@ class DataBase private constructor(context: Context) {
         return values
     }
 
+    private fun queryItems(whereClause: String?, whereArgs: Array<String>?): ItemCursorWrapper {
+        val cursor = sqliteDb.query(
+            Table.NAME,
+            null,
+            whereClause,
+            whereArgs,
+            null,
+            null,
+            null
+        )
+        return ItemCursorWrapper(cursor)
+    }
+
     fun addItem(item: Item) {
         val values = getContentValue(item)
         sqliteDb.insert(Table.NAME, null, values)
+    }
+
+    fun updateItem(item: Item) {
+        val name = item.name
+        val values = getContentValue(item)
+        val whereClause = "${Table.Column.NAME} = ?"
+        val whereArgs = arrayOf(name)
+        sqliteDb.update(Table.NAME, values, whereClause, whereArgs)
+    }
+
+    fun deleteItem(item: Item) {
+        val name = item.name
+        val whereClause = "${Table.Column.NAME} = ?"
+        val whereArgs = arrayOf(name)
+        sqliteDb.delete(Table.NAME, whereClause, whereArgs)
+    }
+
+    fun getItem(name: String): Item? {
+        val whereClause = "${Table.Column.NAME} = ?"
+        val whereArgs = arrayOf(name)
+        val cursor = queryItems(whereClause, whereArgs)
+        cursor.use { table ->
+            if (table.count == 0) return null
+            table.moveToFirst()
+            return table.getItem()
+        }
+    }
+
+    fun getItems(): List<Item> {
+        val items = mutableListOf<Item>()
+        val cursor = queryItems(null, null)
+        cursor.use { table ->
+            table.moveToFirst()
+            while (!table.isAfterLast) {
+                items.add(table.getItem())
+                table.moveToNext()
+            }
+        }
+        return items
     }
 
 }
