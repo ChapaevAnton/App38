@@ -1,8 +1,8 @@
-package com.w4eret1ckrtb1tch.app38.db
+package com.w4eret1ckrtb1tch.app38.db.sqlite
 
 import android.content.ContentValues
 import android.content.Context
-import com.w4eret1ckrtb1tch.app38.db.DbScheme.Table
+import com.w4eret1ckrtb1tch.app38.db.sqlite.DbScheme.Table
 
 class DataBase private constructor(context: Context) {
 

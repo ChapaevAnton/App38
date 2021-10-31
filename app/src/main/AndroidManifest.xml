@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App38">
         <activity
-            android:name=".DataBaseActivity"
+            android:name=".RoomActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

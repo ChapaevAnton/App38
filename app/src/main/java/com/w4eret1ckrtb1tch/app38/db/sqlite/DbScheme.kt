@@ -1,4 +1,4 @@
-package com.w4eret1ckrtb1tch.app38.db
+package com.w4eret1ckrtb1tch.app38.db.sqlite
 
 class DbScheme {
 

@@ -1,9 +1,9 @@
-package com.w4eret1ckrtb1tch.app38.db
+package com.w4eret1ckrtb1tch.app38.db.sqlite
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.w4eret1ckrtb1tch.app38.db.DbScheme.Table
+import com.w4eret1ckrtb1tch.app38.db.sqlite.DbScheme.Table
 
 class DbHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -24,6 +24,9 @@ class DbHelper(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("Not yet implemented")
+        if (oldVersion != newVersion) {
+            db?.execSQL("""DROP TABlE ${Table.NAME}""")
+            onCreate(db)
+        }
     }
 }

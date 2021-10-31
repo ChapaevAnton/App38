@@ -1,45 +1,44 @@
 package com.w4eret1ckrtb1tch.app38
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.w4eret1ckrtb1tch.app38.databinding.ActivityDatabaseBinding
-import com.w4eret1ckrtb1tch.app38.db.sqlite.DataBase
-import com.w4eret1ckrtb1tch.app38.db.sqlite.Item
-import kotlin.random.Random
+import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
+import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 
-class DataBaseActivity : AppCompatActivity() {
+class RoomActivity : AppCompatActivity() {
 
     private var _binding: ActivityDatabaseBinding? = null
     private val binding get() = _binding!!
-    private lateinit var dataBase: DataBase
+    private lateinit var database: CatDataBase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityDatabaseBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        dataBase = DataBase.getDataBase(context = this)!!
+
+        val cats = listOf(CatEntity(name = "Василий", color = Color.RED, age = 1))
+
+        database = CatDataBase.getCatDataBase(this)
+        database.catDao().insertAll(cats)
 
         binding.add.setOnClickListener {
-            val name = binding.editData.text.toString()
-            dataBase.addItem(Item(name, Random.nextDouble()))
-            getInfo()
+            val cat = CatEntity(name = binding.editData.text.toString())
+            database.catDao().insert(cat)
         }
         binding.update.setOnClickListener {
-            val name = binding.editData.text.toString()
-            dataBase.updateItem(Item(name, Random.nextDouble()))
-            getInfo()
+
         }
 
         binding.delete.setOnClickListener {
-            val name = binding.editData.text.toString()
-            dataBase.deleteItem(Item(name))
-            getInfo()
+
         }
     }
 
     private fun getInfo() {
-        val result = "database: ${dataBase.getItems()}"
+        val result = ""
         binding.info.text = result
         Log.d("TAG", "database: $result")
     }
