@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 
-@Database(entities = [CatEntity::class], version = 1, exportSchema = true)
+@Database(entities = [CatEntity::class, BedEntity::class], version = 1, exportSchema = true)
+@TypeConverters(TypeConverter::class)
 abstract class CatDataBase : RoomDatabase() {
 
     abstract fun catDao(): CatDao

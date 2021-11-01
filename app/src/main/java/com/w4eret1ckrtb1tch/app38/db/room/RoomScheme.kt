@@ -14,6 +14,7 @@ class RoomScheme {
                 const val NAME = "name"
                 const val COLOR = "color"
                 const val AGE = "age"
+                const val BIRTH_DAY = "birth_day"
             }
         }
 
@@ -24,6 +25,12 @@ class RoomScheme {
                 const val ID_CAT = "id_cat"
                 const val MODEL = "model"
             }
+        }
+
+        object EmbeddedAddress {
+            const val CITY = "city"
+            const val STREET = "street"
+            const val HOUSE_NUMBER = "house_number"
         }
     }
 

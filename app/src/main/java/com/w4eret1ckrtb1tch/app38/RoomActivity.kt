@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.w4eret1ckrtb1tch.app38.databinding.ActivityDatabaseBinding
+import com.w4eret1ckrtb1tch.app38.db.room.Address
+import com.w4eret1ckrtb1tch.app38.db.room.BedEntity
 import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
 import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
+import java.util.*
 
 class RoomActivity : AppCompatActivity() {
 
@@ -19,17 +22,33 @@ class RoomActivity : AppCompatActivity() {
         _binding = ActivityDatabaseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val cats = listOf(CatEntity(name = "Василий", color = Color.RED, age = 1))
+
+        val address = Address(city = "Кемерово", street = "пр.Ленина", houseNumber = "777")
+        val cat = CatEntity(
+            name = "Василий",
+            color = Color.RED,
+            age = 1,
+            address = address,
+            birthDay = Date()
+        )
+        val bed = BedEntity(model = "MK1", idCat = 1)
+        val cats =
+            listOf(
+                cat
+            )
 
         database = CatDataBase.getCatDataBase(this)
-        database.catDao().insertAll(cats)
+        database.catDao().insert(cat, bed)
 
         binding.add.setOnClickListener {
-            val cat = CatEntity(name = binding.editData.text.toString())
-            database.catDao().insert(cat)
+            val cat = CatEntity(name = binding.editData.text.toString(), address = address)
+            database.catDao().insertCat(cat)
         }
         binding.update.setOnClickListener {
-
+            runOnUiThread {
+                val value = database.catDao().selectCat(1)
+                binding.info.text = value.toString()
+            }
         }
 
         binding.delete.setOnClickListener {
