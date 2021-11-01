@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 
-@Database(entities = [CatEntity::class, BedEntity::class], version = 1, exportSchema = true)
+@Database(entities = [CatEntity::class, BedEntity::class], version = 2, exportSchema = true)
 @TypeConverters(TypeConverter::class)
 abstract class CatDataBase : RoomDatabase() {
 
@@ -23,7 +23,7 @@ abstract class CatDataBase : RoomDatabase() {
                         context.applicationContext,
                         CatDataBase::class.java,
                         RoomScheme.DataBase.NAME
-                    )
+                    ).addMigrations(CatMigrationFromV1_2)
                         .allowMainThreadQueries()
                         .build()
             }

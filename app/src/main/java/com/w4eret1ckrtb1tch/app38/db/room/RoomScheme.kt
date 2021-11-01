@@ -15,6 +15,7 @@ class RoomScheme {
                 const val COLOR = "color"
                 const val AGE = "age"
                 const val BIRTH_DAY = "birth_day"
+                const val FAVORITE_FOOD = "favorite_food"
             }
         }
 

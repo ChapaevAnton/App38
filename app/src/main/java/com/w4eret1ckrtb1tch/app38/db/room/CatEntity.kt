@@ -24,6 +24,7 @@ data class CatEntity constructor(
     @ColumnInfo(name = TableCat.Column.COLOR, defaultValue = "0") val color: Int = 0,
     @ColumnInfo(name = TableCat.Column.BIRTH_DAY) val birthDay: Date? = null,
     @ColumnInfo(name = TableCat.Column.AGE) val age: Int = 0,
+    @ColumnInfo(name = TableCat.Column.FAVORITE_FOOD) val favoriteFood: String = "",
     @Embedded val address: Address? = null
 ) : Parcelable {
     @IgnoredOnParcel
