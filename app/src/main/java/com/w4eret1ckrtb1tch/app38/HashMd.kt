@@ -5,7 +5,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*
 
-class Test {
+class HashMd {
 
 
     fun getHashMd5v1(publicKey: String, privateKey: String): String? {

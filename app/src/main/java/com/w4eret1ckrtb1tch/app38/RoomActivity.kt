@@ -37,9 +37,9 @@ class RoomActivity : AppCompatActivity() {
                 cat
             )
 
-        val test = Test()
-        Log.d("TAG", "onCreate: ${test.getHashMd5v1("1","1")}")
-        Log.d("TAG", "onCreate: ${test.getHashMd5v2("1","1")}")
+        val hashMd = HashMd()
+        Log.d("TAG", "onCreate: ${hashMd.getHashMd5v1("1","1")}")
+        Log.d("TAG", "onCreate: ${hashMd.getHashMd5v2("1","1")}")
 
         database = CatDataBase.getCatDataBase(this)
         database.catDao().insert(cat, bed)
