@@ -1,5 +1,6 @@
 package com.w4eret1ckrtb1tch.app38.db.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
@@ -16,6 +17,9 @@ interface CatDao {
 
     @Query("SELECT * FROM cat_table WHERE id = :id")
     fun selectCat(id: Long): List<CatEntity>
+
+    @Query("SELECT * FROM cat_table ORDER BY id DESC LIMIT 1")
+    fun selectCatLast():LiveData<CatEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertBed(bed: BedEntity)

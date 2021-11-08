@@ -1,54 +1,47 @@
 package com.w4eret1ckrtb1tch.app38
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.w4eret1ckrtb1tch.app38.databinding.ActivityDatabaseBinding
-import com.w4eret1ckrtb1tch.app38.db.room.Address
-import com.w4eret1ckrtb1tch.app38.db.room.BedEntity
-import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
-import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
-import java.util.*
 
 class RoomActivity : AppCompatActivity() {
 
     private var _binding: ActivityDatabaseBinding? = null
     private val binding get() = _binding!!
-    private lateinit var database: CatDataBase
+
+    private val viewModel by viewModels<RoomViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityDatabaseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        val address = Address(city = "Кемерово", street = "пр.Ленина", houseNumber = "777")
-        val cat = CatEntity(
-            name = "Василий",
-            color = Color.RED,
-            age = 1,
-            address = address,
-            birthDay = Date()
-        )
-        val bed = BedEntity(model = "MK1", idCat = 1)
-        val cats =
-            listOf(
-                cat
+        viewModel.transformationsCount.observe(this) { count ->
+            Log.d(
+                "TAG",
+                "transformationsCount: $count"
             )
+        }
+        viewModel.sourceMediator.observe(this) { count ->
+            Log.d(
+                "TAG",
+                "sourceMediatorCount: $count"
+            )
+        }
 
-        database = CatDataBase.getCatDataBase(this)
-        database.catDao().insert(cat, bed)
+        viewModel.selectLastCat.observe(this) { cat ->
+            if (cat == null) return@observe
+            binding.info.text = cat
+        }
 
         binding.add.setOnClickListener {
-            val cat = CatEntity(name = binding.editData.text.toString(), address = address)
-            database.catDao().insertCat(cat)
+            val name = binding.editData.text.toString()
+            viewModel.insertCat(name)
         }
         binding.update.setOnClickListener {
-            runOnUiThread {
-                val value = database.catDao().selectCat(1)
-                binding.info.text = value.toString()
-            }
+
         }
 
         binding.delete.setOnClickListener {
