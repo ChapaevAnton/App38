@@ -36,16 +36,21 @@ class RoomActivity : AppCompatActivity() {
             binding.info.text = cat
         }
 
+        viewModel.selectAllCat.observe(this) { cats ->
+            if (cats == null) return@observe
+            binding.info.text = cats.toString()
+        }
+
         binding.add.setOnClickListener {
             val name = binding.editData.text.toString()
             viewModel.insertCat(name)
         }
         binding.update.setOnClickListener {
-
+            viewModel.selectAllCat()
         }
 
         binding.delete.setOnClickListener {
-
+            viewModel.cancelSelectCat()
         }
     }
 
