@@ -10,6 +10,7 @@ import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
 import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -44,21 +45,31 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val scope1 = CoroutineScope(Job())
-    private val scope2 = CoroutineScope(Job())
+    private val scope1 = CoroutineScope(context = MainScope().coroutineContext)
 
-
-    fun selectAllCat() {
-        val selectAllJob = scope1.launch {
-            _selectAllCat.postValue(selectAll())
+    private val job =
+        MainScope().launch(start = CoroutineStart.LAZY, context = viewModelScope.coroutineContext) {
+            delay(TimeUnit.SECONDS.toMillis(3L))
+            _selectAllCat.value = selectAll()
+            ensureActive()
             Log.d("TAG", "selectAllCat: ok active:${isActive}")
         }
-        Log.d("TAG", "selectAllCat: ok completed:${selectAllJob.isCompleted}")
-        Log.d("TAG", "selectAllCat: ok cancelled:${selectAllJob.isCancelled}")
+    private val scope2 = CoroutineScope(job)
+
+    fun selectAllCat() {
+        scope1.launch {
+            val deferred = async {
+                return@async selectAll()
+            }
+            val result = deferred.await()
+            _selectAllCat.value = result
+        }
+
     }
 
     fun cancelSelectCat() {
-        scope1.cancel()
+        //job.cancel()
+        //scope2.cancel()
         Log.d("TAG", "cancelSelectCat: ${viewModelScope.isActive}")
     }
 
