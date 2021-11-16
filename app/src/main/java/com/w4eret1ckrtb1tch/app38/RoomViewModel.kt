@@ -82,7 +82,7 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
             scope5.launch {
                 val custom = coroutineContext[CustomContext]?.copy(str1 = "100", str2 = "200")
                 Log.d("TAG", "selectAllCat: custom $custom")
-                launch() {
+                launch(start = CoroutineStart.LAZY) {
                     Log.d(
                         "TAG",
                         "selectAllCat: custom ${contextToString(coroutineContext[CustomContext]!!)}"
