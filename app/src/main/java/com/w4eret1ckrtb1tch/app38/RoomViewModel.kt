@@ -10,9 +10,10 @@ import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
 import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import kotlin.concurrent.thread
+import kotlin.coroutines.*
 
 class RoomViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -45,7 +46,12 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val scope1 = CoroutineScope(context = MainScope().coroutineContext)
+
+    private val scope1 = CoroutineScope(context = Dispatchers.Main)
+    private val scope3 =
+        CoroutineScope(Job() + Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    private val scope4 = CoroutineScope(context = EmptyCoroutineContext)
+    private val scope5 = CoroutineScope(context = Job() + CustomContext("1", "2"))
 
     private val job =
         MainScope().launch(start = CoroutineStart.LAZY, context = viewModelScope.coroutineContext) {
@@ -57,14 +63,33 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
     private val scope2 = CoroutineScope(job)
 
     fun selectAllCat() {
+        Log.d("TAG", "selectAllCat scope1: ${contextToString(scope1.coroutineContext)}")
+        Log.d("TAG", "selectAllCat scope3: ${contextToString(scope3.coroutineContext)}")
+        Log.d("TAG", "selectAllCat scope4: ${contextToString(scope4.coroutineContext)}")
+        Log.d("TAG", "selectAllCat scope5: ${contextToString(scope5.coroutineContext)}")
         scope1.launch {
             val deferred = async {
                 return@async selectAll()
             }
             val result = deferred.await()
             _selectAllCat.value = result
+            repeat(7) {
+                scope3.launch {
+                    Log.d("TAG", "!!!#$it started in ${Thread.currentThread().name}")
+                    Thread.sleep(100)
+                }
+            }
+            scope5.launch {
+                val custom = coroutineContext[CustomContext]?.copy(str1 = "100", str2 = "200")
+                Log.d("TAG", "selectAllCat: custom $custom")
+                launch() {
+                    Log.d(
+                        "TAG",
+                        "selectAllCat: custom ${contextToString(coroutineContext[CustomContext]!!)}"
+                    )
+                }
+            }
         }
-
     }
 
     fun cancelSelectCat() {
@@ -72,6 +97,9 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
         //scope2.cancel()
         Log.d("TAG", "cancelSelectCat: ${viewModelScope.isActive}")
     }
+
+    private fun contextToString(context: CoroutineContext): String =
+        "!!!Job: ${context[Job]}, Dispatcher: ${context[ContinuationInterceptor]}, Custom: ${context[CustomContext]}"
 
     private suspend fun insert(name: String) {
         return suspendCoroutine { continuation ->
@@ -82,8 +110,11 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun selectAll(): List<CatEntity> {
         return suspendCoroutine { continuation ->
-            val cats = database.catDao().selectAll()
-            continuation.resume(cats)
+            thread {
+                Log.d("TAG", "selectAll: ok")
+                val cats = database.catDao().selectAll()
+                continuation.resume(cats)
+            }
         }
     }
 
@@ -108,6 +139,11 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
         listOf(
             cat
         )
+}
 
-
+data class CustomContext(
+    val str1: String,
+    val str2: String
+) : AbstractCoroutineContextElement(CustomContext) {
+    companion object Key : CoroutineContext.Key<CustomContext>
 }
