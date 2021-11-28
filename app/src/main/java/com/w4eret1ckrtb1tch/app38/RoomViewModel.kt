@@ -14,6 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.coroutines.*
+import kotlin.system.measureTimeMillis
 
 class RoomViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -53,6 +54,14 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
     private val scope4 = CoroutineScope(context = EmptyCoroutineContext)
     private val scope5 = CoroutineScope(context = Job() + CustomContext("1", "2"))
 
+    // TODO: 28.11.2021 41.1 Exceptions
+    private val coroutineException = CoroutineExceptionHandler { coroutineContext, throwable ->
+        Log.d("TAG", "coroutineContext: ${coroutineContext.isActive}")
+        Log.d("TAG", "ArithmeticException: ${throwable.printStackTrace()}")
+    }
+    private val scope6 = CoroutineScope(context = coroutineException)
+
+
     private val job =
         MainScope().launch(start = CoroutineStart.LAZY, context = viewModelScope.coroutineContext) {
             delay(TimeUnit.SECONDS.toMillis(3L))
@@ -90,11 +99,89 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        // TODO: 28.11.2021 41.1 Exceptions
+        scope6.launch {
+
+            launch(SupervisorJob(coroutineContext[Job]) + Dispatchers.Default) {
+                val sum = 10 / 0
+            }
+
+            launch {
+                repeat(5) {
+                    delay(TimeUnit.SECONDS.toMillis(1L))
+                    Log.d("TAG", "scope6: $isActive")
+                }
+            }
+        }
+
+        // TODO: 28.11.2021 43.2. Coroutine Builders
+        val scope7 = CoroutineScope(coroutineException)
+        scope7.launch {
+            try {
+                coroutineScope {
+                    val sum = 10 / 0
+                }
+                val sum = mCoroutineScope()
+            } catch (error: ArithmeticException) {
+                error.printStackTrace()
+            }
+            val sum = mSupervisorScope()
+
+
+        }
+
+        val scope8 = CoroutineScope(SupervisorJob() + EmptyCoroutineContext)
+        scope8.launch {
+            mWithContext()
+            mRunBlock()
+        }
+
+    }
+
+    private suspend fun mCoroutineScope(): Int {
+        return coroutineScope {
+            val sum = 10 / 0
+            return@coroutineScope sum
+        }
+    }
+
+    private suspend fun mSupervisorScope(): Int {
+        return supervisorScope {
+            val job = async(coroutineException) {
+                val sum = 10 / 0
+                return@async sum
+            }
+            return@supervisorScope job.await()
+        }
+    }
+
+    private suspend fun mWithContext() {
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(TimeUnit.SECONDS.toMillis(1L))
+            print("!!!!! ${contextToString(coroutineContext)}")
+            withContext(Dispatchers.Main) {
+                print("!!!!! ${contextToString(coroutineContext)}")
+            }
+        }
+    }
+
+    private fun mRunBlock() {
+        runBlocking {
+            val time = measureTimeMillis {
+                runBlocking {
+                    launch {
+                        delay(2000)
+                    }
+                }
+            }
+            print(time)
+        }
     }
 
     fun cancelSelectCat() {
         //job.cancel()
         //scope2.cancel()
+        scope6.cancel()
         Log.d("TAG", "cancelSelectCat: ${viewModelScope.isActive}")
     }
 
