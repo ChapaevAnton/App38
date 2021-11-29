@@ -11,6 +11,10 @@ import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -288,6 +292,39 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
             }
 
         }
+        // TODO: 29.11.2021 Flow
+        runFlow()
+        CoroutineScope(EmptyCoroutineContext).launch {
+            emitterFlow(1, 2).collect {
+                println("emitterFlow $it")
+            }
+        }
+
+    }
+
+
+    // TODO: 29.11.2021 Flow
+    private fun runFlow() {
+        val function = emitter("test 1")
+        function.invoke {
+            println("emitter $it")
+        }
+    }
+
+    private fun emitter(s: String): ((String) -> Unit) -> Unit {
+        return { emitter ->
+            repeat(5) {
+                emitter.invoke(s)
+            }
+        }
+    }
+
+    private fun emitterFlow(s: Int, multiplier: Int): Flow<String> {
+        return flow {
+            repeat(5) {
+                emit(s + it)
+            }
+        }.map { (it * multiplier).toString() }
     }
 
 
