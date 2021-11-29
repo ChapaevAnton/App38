@@ -9,6 +9,8 @@ import com.w4eret1ckrtb1tch.app38.db.room.BedEntity
 import com.w4eret1ckrtb1tch.app38.db.room.CatDataBase
 import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -204,6 +206,90 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    // TODO: 29.11.2021 Channels
+    fun channels() {
+
+        // TODO: 29.11.2021 Rendezvous Channel 
+        val channel1 = Channel<Int>()
+        CoroutineScope(EmptyCoroutineContext).launch {
+            launch {
+                println("start sending")
+                channel1.send(1)
+                channel1.send(2)
+                channel1.close()
+                println("stop sending")
+            }
+            launch {
+                println("star receiving")
+                for (result in channel1) {
+                    println("result: $result")
+                }
+                println("stop receiving")
+            }
+        }
+
+        // TODO: 29.11.2021 Conflated and Buffered Channel
+        val channel2 = Channel<Int>(Channel.BUFFERED)
+        CoroutineScope(EmptyCoroutineContext).launch {
+            this.coroutineContext[Job]?.invokeOnCompletion { channel2.close() }
+
+            launch {
+                repeat(8) { action ->
+                    delay(TimeUnit.MILLISECONDS.toMillis(200L))
+                    channel2.send(action)
+                    println("send1 $action")
+                }
+                println("send1 end")
+            }
+
+            launch {
+                repeat(8) { action ->
+                    delay(TimeUnit.MILLISECONDS.toMillis(200L))
+                    channel2.send(action)
+                    println("send2 $action")
+                }
+                println("send2 end")
+            }
+        }
+
+        CoroutineScope(EmptyCoroutineContext).launch {
+            for (result in channel2) {
+                delay(TimeUnit.SECONDS.toMillis(1L))
+                println("received $result")
+            }
+            println("received end")
+        }
+
+        // TODO: 29.11.2021 BroadCast Channel
+        val broadcastChannel = BroadcastChannel<Int>(Channel.BUFFERED)
+        CoroutineScope(EmptyCoroutineContext).launch {
+            repeat(5) {
+                delay(TimeUnit.SECONDS.toMillis(1L))
+                broadcastChannel.send(it)
+                println("broadcast send $it")
+            }
+            println("broadcast send close")
+        }.invokeOnCompletion { broadcastChannel.close() }
+
+        CoroutineScope(EmptyCoroutineContext).launch {
+            launch {
+                for (result in broadcastChannel.openSubscription()) {
+                    println("broadcast received1 $result ")
+                }
+                println("broadcast received1 close")
+            }
+
+            launch {
+                for (result in broadcastChannel.openSubscription()) {
+                    println("broadcast received2 $result ")
+                }
+                println("broadcast received2 close")
+            }
+
+        }
+    }
+
 
     private val _selectLastCat: LiveData<CatEntity> = MutableLiveData()
     val selectLastCat: LiveData<String> =
