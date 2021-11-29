@@ -46,7 +46,7 @@ class RoomActivity : AppCompatActivity() {
             viewModel.insertCat(name)
         }
         binding.update.setOnClickListener {
-            viewModel.channels()
+            viewModel.createFlow()
         }
 
         binding.delete.setOnClickListener {

@@ -11,10 +11,7 @@ import com.w4eret1ckrtb1tch.app38.db.room.CatEntity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -325,6 +322,29 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
                 emit(s + it)
             }
         }.map { (it * multiplier).toString() }
+    }
+
+    fun createFlow() {
+        val list1 = listOf(1, 2, 3, 4, 5, 6)
+        val list2 = listOf(1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 5, 6)
+
+        val flow1 = list1.asFlow().map { it * it }.filter { it.mod(2) != 0 }
+        val flow2 = list2.asFlow().distinctUntilChanged()
+        val flow3 = list2.asFlow()
+
+        runBlocking(Dispatchers.IO) {
+            flow1.collect {
+                delay(TimeUnit.SECONDS.toMillis(1L))
+                println("emitter1 $it")
+            }
+            flow2.collect {
+                delay(TimeUnit.SECONDS.toMillis(1L))
+                println("emitter2 $it")
+            }
+            flow3.count().run {
+                println("emitter3 $this")
+            }
+        }
     }
 
 
